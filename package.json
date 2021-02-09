@@ -1,0 +1,11 @@
+{
+  "name": "docusaurus-meilisearch-indexer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@ramumb/strip-tags": "^0.1.3",
+    "github-slugger": "^1.3.0",
+    "simple-markdown": "^0.7.3"
+  }
+}
