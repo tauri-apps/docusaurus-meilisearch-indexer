@@ -1,0 +1,16 @@
+name: 'meilisearch-indexer'
+description: 'Run Meilisearch indexation'
+inputs:
+  version:
+    required: true
+  docusaurusPath:
+    required: true
+  host:
+    required: true
+  apiKey:
+    required: true
+  docs:
+    required: true
+runs:
+  using: 'node12'
+  main: 'index.js'
