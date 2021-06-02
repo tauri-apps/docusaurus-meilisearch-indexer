@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "run-source": "node index.js",
-    "build": "ncc build process.js -o ."
+    "build": "ncc build process.js -m -o ."
   },
   "dependencies": {
     "@actions/core": "^1.2.7",
