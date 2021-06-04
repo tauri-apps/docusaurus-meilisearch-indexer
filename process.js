@@ -183,5 +183,5 @@ require(`${PATH}/sidebars.js`)
 
 client
   .index(INDEX)
-  .addDocuments(docs)
+  .addDocuments(indexes)
   .then((res) => console.log(res));
