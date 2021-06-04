@@ -6,7 +6,13 @@ const core = require("@actions/core");
 const { MeiliSearch } = require("meilisearch");
 
 const mdParse = SimpleMarkdown.defaultBlockParse;
-const getTitle = (markdown) => /title:\s*([^\n\r]*)[^-]*---/.exec(markdown)[1];
+const getTitle = (markdown) => {
+  let title = /title:\s*([^\n\r]*)[^-]*---/.exec(markdown)[1]
+  if (title === "true") {
+    title = /sidebar_label:\s*([^\n\r]*)[^-]*---/.exec(markdown)[1]
+  }
+  return title.replace(/"/g, "");
+};
 
 let objectID = 1;
 const getObjectID = () => objectID++;
@@ -119,6 +125,14 @@ const processFile = (path, baseData) => {
   slugger.reset();
 };
 
+const getCurrentHierarchyLevel = (data) => {
+  for (let i = 0; i <= 6; ++i) {
+    if (!data["hierarchy_lvl" + i]) {
+      return "hierarchy_lvl" + (i - 1);
+    }
+  }
+};
+
 const getNextHierarchyLevel = (data) => {
   for (let i = 0; i <= 6; ++i) {
     if (!data["hierarchy_lvl" + i]) {
@@ -132,11 +146,21 @@ const fetchIndexes = (node, baseData) => {
   if (typeof node === "string") {
     processFile(node, baseData);
   } else if (node.items) {
-    const nextData = {
-      ...baseData,
-      [getNextHierarchyLevel(baseData)]: node.label,
-    };
-    node.items.forEach((node) => fetchIndexes(node, nextData));
+    const currentHierarchyLevel = getCurrentHierarchyLevel(baseData);
+    let nextData;
+    if (baseData["hierarchy_lvl0"] === "API" && currentHierarchyLevel === "hierarchy_lvl2") {
+      nextData = {
+        ...baseData,
+        [currentHierarchyLevel]: `${baseData[currentHierarchyLevel]}/${node.label}`,
+      }
+    } else {
+      nextData = {
+        ...baseData,
+        [getNextHierarchyLevel(baseData)]: node.label,
+      };
+    }
+    
+    node.items.forEach((child) => fetchIndexes(child, nextData));
   }
 };
 
@@ -152,7 +176,7 @@ require(`${PATH}/sidebars.js`)
     hierarchy_lvl6: null,
   });
 
-const client = new MeiliSearch({
+  const client = new MeiliSearch({
   host: HOST,
   apiKey: API_KEY,
 });
