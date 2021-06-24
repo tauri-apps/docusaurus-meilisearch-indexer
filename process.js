@@ -196,14 +196,8 @@ try {
       hierarchy_lvl6: null,
     });
 } catch (error) {
-  const regex = new RegExp(
-    `no such file or directory, open ${PATH.replace("/", "\\/")}(.*)`
-  );
-  const match = error.message.match(regex);
-  if (match) {
-    const files = getAllFiles(PATH);
-    console.log("Existing files: ", files);
-  }
+  const files = getAllFiles(PATH);
+  console.log("Existing files: ", files);
   throw new Error(error.message);
 }
 
