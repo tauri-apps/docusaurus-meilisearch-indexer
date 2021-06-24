@@ -1,5 +1,6 @@
 const SimpleMarkdown = require("simple-markdown");
 const fs = require("fs");
+// const path = require("path");
 const slugger = require("github-slugger")();
 const stripTags = require("@ramumb/strip-tags");
 const core = require("@actions/core");
