@@ -7,9 +7,9 @@ const { MeiliSearch } = require("meilisearch");
 
 const mdParse = SimpleMarkdown.defaultBlockParse;
 const getTitle = (markdown) => {
-  let title = /title:\s*([^\n\r]*)[^-]*---/.exec(markdown)[1]
+  let title = /title:\s*([^\n\r]*)[^-]*---/.exec(markdown)[1];
   if (title === "true") {
-    title = /sidebar_label:\s*([^\n\r]*)[^-]*---/.exec(markdown)[1]
+    title = /sidebar_label:\s*([^\n\r]*)[^-]*---/.exec(markdown)[1];
   }
   return title.replace(/"/g, "");
 };
@@ -22,6 +22,22 @@ const PATH = core.getInput("docusaurusPath");
 const API_KEY = core.getInput("apiKey");
 const HOST = core.getInput("host");
 const DOCS = core.getInput("docs").split(",");
+
+const getAllFiles = (dirPath, arrayOfFiles) => {
+  files = fs.readdirSync(dirPath);
+
+  arrayOfFiles = arrayOfFiles || [];
+
+  files.forEach(function (file) {
+    if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+      arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+    } else {
+      arrayOfFiles.push(path.join(__dirname, dirPath, "/", file));
+    }
+  });
+
+  return arrayOfFiles;
+};
 
 const createIndex = (data) => {
   const requiredFields = ["hierarchy_lvl0", "hierarchy_lvl1", "url"];
@@ -148,35 +164,50 @@ const fetchIndexes = (node, baseData) => {
   } else if (node.items) {
     const currentHierarchyLevel = getCurrentHierarchyLevel(baseData);
     let nextData;
-    if (baseData["hierarchy_lvl0"] === "API" && currentHierarchyLevel === "hierarchy_lvl2") {
+    if (
+      baseData["hierarchy_lvl0"] === "API" &&
+      currentHierarchyLevel === "hierarchy_lvl2"
+    ) {
       nextData = {
         ...baseData,
         [currentHierarchyLevel]: `${baseData[currentHierarchyLevel]}/${node.label}`,
-      }
+      };
     } else {
       nextData = {
         ...baseData,
         [getNextHierarchyLevel(baseData)]: node.label,
       };
     }
-    
+
     node.items.forEach((child) => fetchIndexes(child, nextData));
   }
 };
 
-require(`${PATH}/sidebars.js`)
-  .docs.filter((lvl0) => DOCS.includes(lvl0.label))
-  .forEach(fetchIndexes, {
-    hierarchy_lvl0: null,
-    hierarchy_lvl1: null,
-    hierarchy_lvl2: null,
-    hierarchy_lvl3: null,
-    hierarchy_lvl4: null,
-    hierarchy_lvl5: null,
-    hierarchy_lvl6: null,
-  });
+try {
+  require(`${PATH}/sidebars.js`)
+    .docs.filter((lvl0) => DOCS.includes(lvl0.label))
+    .forEach(fetchIndexes, {
+      hierarchy_lvl0: null,
+      hierarchy_lvl1: null,
+      hierarchy_lvl2: null,
+      hierarchy_lvl3: null,
+      hierarchy_lvl4: null,
+      hierarchy_lvl5: null,
+      hierarchy_lvl6: null,
+    });
+} catch (error) {
+  const regex = new RegExp(
+    `no such file or directory, open ${DOCS.replace("/", "\\/")}(.*)`
+  );
+  const match = error.message.match(regex);
+  if (match.length) {
+    const files = getAllFiles(DOCS);
+    console.log("Existing files: ", files);
+  }
+  throw new Error(error.message);
+}
 
-  const client = new MeiliSearch({
+const client = new MeiliSearch({
   host: HOST,
   apiKey: API_KEY,
 });
