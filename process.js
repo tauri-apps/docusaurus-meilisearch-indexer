@@ -197,11 +197,11 @@ try {
     });
 } catch (error) {
   const regex = new RegExp(
-    `no such file or directory, open ${DOCS.replace("/", "\\/")}(.*)`
+    `no such file or directory, open ${PATH.replace("/", "\\/")}(.*)`
   );
   const match = error.message.match(regex);
   if (match.length) {
-    const files = getAllFiles(DOCS);
+    const files = getAllFiles(PATH);
     console.log("Existing files: ", files);
   }
   throw new Error(error.message);
