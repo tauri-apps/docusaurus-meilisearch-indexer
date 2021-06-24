@@ -200,7 +200,7 @@ try {
     `no such file or directory, open ${PATH.replace("/", "\\/")}(.*)`
   );
   const match = error.message.match(regex);
-  if (match.length) {
+  if (match) {
     const files = getAllFiles(PATH);
     console.log("Existing files: ", files);
   }
