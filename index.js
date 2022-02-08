@@ -6705,7 +6705,7 @@ const getContent = (contents) =>
   ).replace(/&nbsp;/g, "");
 
 const processFile = (path, baseData) => {
-  const md = fs.readFileSync(`${PATH}/docs/en/${path}.md`, {
+  const md = fs.readFileSync(`${PATH}/docs/${path}.md`, {
     encoding: "utf8",
   });
 
@@ -6775,7 +6775,7 @@ const fetchIndexes = (node, baseData) => {
   }
 };
 
-require(`${PATH}/sidebars.json`)
+require(`${PATH}/sidebars.js`)
   .docs.filter((lvl0) => DOCS.includes(lvl0.label))
   .forEach(fetchIndexes, {
     hierarchy_lvl0: null,

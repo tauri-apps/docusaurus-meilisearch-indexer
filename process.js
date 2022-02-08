@@ -70,7 +70,7 @@ const getContent = (contents) =>
   ).replace(/&nbsp;/g, "");
 
 const processFile = (path, baseData) => {
-  const md = fs.readFileSync(`${PATH}/docs/en/${path}.md`, {
+  const md = fs.readFileSync(`${PATH}/docs/${path}.md`, {
     encoding: "utf8",
   });
 
